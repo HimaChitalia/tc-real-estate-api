@@ -14,3 +14,7 @@
 !/tmp/.keep
 
 .byebug_history
+
+# Ignore all environmental Variables
+.env
+
