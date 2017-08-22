@@ -15,16 +15,6 @@ RSpec.describe User, type: :model do
      ]) 
     end
     
-    it 'requires that email is valid' do 
-      create(:user)
-      user = build(:user)
-
-      expect(user.valid?).to equal(false)
-      expect(user.errors.full_messages).to eq([
-        "Email has already been taken"
-      ])
-    end
-    
     it 'requires that an email is valid (contains an @ symbol and a (.com, .org, etc...)' do 
      user1 = build(:user, email: 'hima.com')
      user2 = build(:user, email: 'hima@something')
@@ -55,24 +45,25 @@ RSpec.describe User, type: :model do
     
     it 'has many houses' do
       user = create(:user)
-      user.houses.create
-
-      expect(user.houses.first.id).not_to eq(nil)      
+      house = create(:house)
+        
+      user.houses << house
+      
+      expect(house).not_to eq(nil)      
     end
     
     it 'has many houses that is destroyed upon deletion of user' do 
       user = create(:user)
-      house = user.houses.create(address: "7576 New Road", city: "Edison", 
-      state: "NJ", zip: "06832", category: "Single Family", 
-      latitude: "40.002793879", longitude: "-89.090876868", 
-      status: 0)
-      
-      house1 = user.houses.create(address: "84564 another road", city: "Edison", 
+      house = create(:house)
+      user.houses << house
+        
+      house1 = create(:house, address: "84564 another road", city: "Edison", 
       state: "NJ", zip: "06832", category: "Single Family", 
       latitude: "58.002793879", longitude: "-89.090876868", 
       status: 0)
-      # house1 = user.houses.create(status: 0)
       
+      user.houses << house1
+  
       # house = u.houses.create(address: "7576 New Road", city: "Edison", 
       # state: "NJ", zip: "06832", category: "Single Family", 
       # latitude: "40.002793879", longitude: "-89.090876868", 
@@ -85,11 +76,18 @@ RSpec.describe User, type: :model do
       expect(house1.id).not_to eq(nil)
         
       user.destroy 
-           
+      # house.reload
+      
       expect(user).to_not be(be_persisted)
       expect(house).to_not be(be_persisted)
       expect(house1).to_not be(be_persisted)
-      # expect(House.count).to eq(0)
+      expect(House.count).to eq(0)
+      
+      # expect(user.destroyed?).to be(true)
+      # expect(house.destroyed?).to be(true)
+
+      # expect(user).to be(nil)
+      # expect(house1).to be(nil)
     end
       
   end

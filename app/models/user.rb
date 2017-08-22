@@ -12,6 +12,8 @@ class User < ApplicationRecord
    private
 
    def destroy_houses
-     self.houses.delete_all   
+     self.houses.destroy_all
+    #  self.houses.reload
+    #  self.reload
    end
 end
