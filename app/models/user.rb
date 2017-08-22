@@ -4,4 +4,14 @@ class User < ApplicationRecord
   validates_presence_of :email, :username
   validates_uniqueness_of :email
   validates_format_of :email, :with => /\A\S+@.+\.\S+\z/
+  
+  has_many :houses
+  
+  before_destroy :destroy_houses
+
+   private
+
+   def destroy_houses
+     self.houses.delete_all   
+   end
 end
