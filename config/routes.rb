@@ -8,6 +8,10 @@ Rails.application.routes.draw do
 
       # /api/v1/auth => for the loging of existing new users
       post '/auth', to: "auth#login"
+
+      # /api/v1/auth/refresh => for refreshing token
+      post '/auth/refresh', to: "auth#refresh"
+
     end
   end
 end
