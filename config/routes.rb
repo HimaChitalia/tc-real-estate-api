@@ -12,6 +12,9 @@ Rails.application.routes.draw do
       # /api/v1/auth/refresh => for refreshing token
       post '/auth/refresh', to: "auth#refresh"
 
+      # /api/v1/houses
+      resources :houses, only: [:create, :show]
+
     end
   end
 end
