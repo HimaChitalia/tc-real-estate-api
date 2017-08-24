@@ -42,7 +42,6 @@ RSpec.describe "Api::V1::Carts", type: :request do
 
     get "/api/v1/houses/#{@house.id}", params: {id: @house.id, user_id: @user.id}, headers: @token_headers
     responses << response
-    binding.pry
     response_bodies << JSON.parse(response.body)
 
     responses.each { |r| expect(r).to have_http_status(200) }
