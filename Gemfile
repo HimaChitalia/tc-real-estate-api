@@ -20,6 +20,8 @@ gem 'jwt', '~> 1.5', '>= 1.5.4'
 # Use ActiveModel has_secure_password
 gem 'bcrypt', '~> 3.1.7'
 
+# Add geomatric data
+gem 'geocoder', '~> 1.3', '>= 1.3.7'
 
 gem 'dotenv-rails'
 # Use Capistrano for deployment
