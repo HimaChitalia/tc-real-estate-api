@@ -2,7 +2,6 @@ class Api::V1::LocationController < ApplicationController
 
   def geolocation
     @location = Location.new(location_params)
-    binding.pry
     if @location.save
       render json: @location
     else
