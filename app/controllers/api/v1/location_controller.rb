@@ -1,23 +1,16 @@
-# require 'crack' # for xml and json
-# require 'crack/json' # for just json
-# require 'crack/xml' # for just xml
-
 class Api::V1::LocationController < ApplicationController
+
   GOOGLE_KEY = ENV["GOOGLE_KEY"]
-  # respond_to :json
 
-  # http://www.zillow.com/webservice/GetDeepSearchResults.htm?zws-id=<ZWSID>&address=2114+Bigelow+Ave&citystatezip=Seattle%2C+WA
-
-  # https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=YOUR_API_KEY
   def geolocation
     @location = Location.new(location_params)
     if @location.save
-      # begin
-      citystate = "#{@location.city}, #{@location.state}"
-
+11
+      @all_locations = []
       location = "#{@location.latitude},#{@location.longitude}"
 
-      @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
+      begin
+        @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
           req.params['location'] = location
           req.params['radius'] = params[:radius]
           req.params['type'] = params[:type]
@@ -25,39 +18,38 @@ class Api::V1::LocationController < ApplicationController
           # req.options.timeout = 0
         end
 
-        # binding.pry
+        body = JSON.parse(@resp.body)
 
-        @body = JSON.parse(@resp.body)
+        if @resp.success?
+          @locationDetails = body["results"]
+          @locationDetails.map.with_index(1) do |e, index|
+            new_location = {}
+            new_location["address"] = e["vicinity"],
+            new_location["key"] = index,
+            new_location["rating"] = e["rating"]
+            new_location["name"] = e["name"]
+            if e["opening_hours"]["open_now"] == true
+              new_location["open"] = true
+            end
+            new_location.map do |k, v|
+              if v.is_a?(Array)
+                  v.pop(2)
+                  v.to_s
+              end
+            end
+            @all_locations.push(new_location)
+          end
 
-        render json: @body
+        else
+          @error = body["meta"]["errorDetail"]
+        end
 
-      # @resp = Faraday.get 'http://www.zillow.com/webservice/GetDeepSearchResults.htm?zws-id=X1-ZWz1fyb7z4chsb_3z9zt' do |req|
-      #     req.params['address'] = @location.address
-      #     req.params['citystatezip'] = citystate
-      #     # req.options.timeout = 0
-      #   end
+      rescue Faraday::ConnectionFailed
+        @error = "There was a timeout. Please try again."
+      end
 
-        # @json_resp = Crack::XML.parse(@resp)
-        # @body = JSON.parse(@resp.request)
+      render json: @all_locations
 
-        # render json: @json_sesp
-      #   if @resp.success?
-      #     @houseDetails = body["responses"]["response"]
-      #   else
-      #     @error = body["meta"]["errorDetail"]
-      #   end
-      #
-      # rescue Faraday::ConnectionFailed
-      #   @error = "There was a timeout. Please try again."
-      # end
-      # render json: @houseDetails
-                    # render :template => 'location', :format => :js
-                    # respond_with @location
-                    # responder=>
-                    # respond_to do |format|
-                    #   format.js{render :js => "getHomeInfo();"}
-                    # end
-                    # render json: @location
     else
       render json: {
         errors: @location.errors
