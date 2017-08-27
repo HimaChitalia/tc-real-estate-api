@@ -45,7 +45,7 @@ class Api::V1::LocationController < ApplicationController
               @all_locations.push(new_location)
             end
           else
-            @error = "#{params[:type]} is not available in #{params[:radius]} Radius. PLease increase search radius and try again!"
+            @error = "#{params[:type]} is not available in #{params[:miles]} miles. PLease increase search radius and try again!"
           end
 
         else
