@@ -4,6 +4,7 @@ class Api::V1::LocationController < ApplicationController
 
   def geolocation
     @location = Location.new(location_params)
+
     if @location.save
 
       @all_locations = []
@@ -11,16 +12,15 @@ class Api::V1::LocationController < ApplicationController
 
       begin
         @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
+          @radius = params[:miles].to_i * 1609.344
           req.params['location'] = location
-          req.params['radius'] = params[:radius]
+          req.params['radius'] = @radius
           req.params['type'] = params[:type]
           req.params['key'] = GOOGLE_KEY
           # req.options.timeout = 0
         end
 
         body = JSON.parse(@resp.body)
-
-        # render json: @body
 
         if @resp.success?
           if body["status"] != "ZERO_RESULTS"
