@@ -20,8 +20,16 @@ gem 'jwt', '~> 1.5', '>= 1.5.4'
 # Use ActiveModel has_secure_password
 gem 'bcrypt', '~> 3.1.7'
 
+#gem faraday for the Zillow api calls
+gem 'faraday'
+
+gem 'crack'
+
 # Add geomatric data
 gem 'geocoder', '~> 1.3', '>= 1.3.7'
+
+# responsers gem for "respond_to method in controller"
+gem 'responders', '~> 2.3'
 
 gem 'dotenv-rails'
 # Use Capistrano for deployment

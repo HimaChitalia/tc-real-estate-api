@@ -18,6 +18,9 @@ Bundler.require(*Rails.groups)
 
 module TcRealEstateApi
   class Application < Rails::Application
+    # Use the responders controller from the responders gem
+    config.app_generators.scaffold_controller :responders_controller
+
     config.load_defaults 5.1
     config.autoload_paths << Rails.root.join('lib')
     config.api_only = true

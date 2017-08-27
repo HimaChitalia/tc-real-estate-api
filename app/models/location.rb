@@ -10,4 +10,8 @@ class Location < ApplicationRecord
     def full_street_address
       [address, city, state, zipcode].compact.join(", ")
     end
+
+    def citystatezip
+      [city, state].compact.join(", ")
+    end
 end
