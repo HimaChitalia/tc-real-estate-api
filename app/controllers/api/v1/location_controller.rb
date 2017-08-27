@@ -5,7 +5,7 @@ class Api::V1::LocationController < ApplicationController
   def geolocation
     @location = Location.new(location_params)
     if @location.save
-11
+
       @all_locations = []
       location = "#{@location.latitude},#{@location.longitude}"
 
@@ -20,24 +20,32 @@ class Api::V1::LocationController < ApplicationController
 
         body = JSON.parse(@resp.body)
 
+        # render json: @body
+
         if @resp.success?
-          @locationDetails = body["results"]
-          @locationDetails.map.with_index(1) do |e, index|
-            new_location = {}
-            new_location["address"] = e["vicinity"],
-            new_location["key"] = index,
-            new_location["rating"] = e["rating"]
-            new_location["name"] = e["name"]
-            if e["opening_hours"]["open_now"] == true
-              new_location["open"] = true
-            end
-            new_location.map do |k, v|
-              if v.is_a?(Array)
-                  v.pop(2)
-                  v.to_s
+          if body["status"] != "ZERO_RESULTS"
+            @locationDetails = body["results"]
+            @locationDetails.map.with_index(1) do |e, index|
+              new_location = {}
+              new_location["address"] = e["vicinity"],
+              new_location["key"] = index,
+              if new_location["rating"] != nil
+                new_location["rating"] = e["rating"]
               end
+              new_location["name"] = e["name"]
+              if e["opening_hours"] && e["opening_hours"]["open_now"] == true
+                new_location["open"] = true
+              end
+              new_location.map do |k, v|
+                if v.is_a?(Array)
+                    v.pop(2)
+                    v.to_s
+                end
+              end
+              @all_locations.push(new_location)
             end
-            @all_locations.push(new_location)
+          else
+            @error = "#{params[:type]} is not available in #{params[:radius]} Radius. PLease increase search radius and try again!"
           end
 
         else
@@ -48,7 +56,15 @@ class Api::V1::LocationController < ApplicationController
         @error = "There was a timeout. Please try again."
       end
 
-      render json: @all_locations
+      if @all_locations.any?
+        @result = @all_locations
+      else
+        @result = { message: @error}
+      end
+
+      render json: @result
+
+      # render json: @all_locations
 
     else
       render json: {
