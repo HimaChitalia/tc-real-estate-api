@@ -7,69 +7,31 @@ class Api::V1::LocationController < ApplicationController
 
     if @location.save
 
-      @all_locations = []
-      location = "#{@location.latitude},#{@location.longitude}"
+      @all_locations = {}
 
-      begin
-        @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
-          req.params['rankby'] = 'distance'
-          req.params['location'] = location
-          req.params['type'] = params[:type]
-          req.params['key'] = GOOGLE_KEY
-        end
+      @train_stations_locations = []
+      @school_locations = []
+      @hospital_locations = []
 
-        body = JSON.parse(@resp.body)
+      @orig_location = "#{@location.latitude},#{@location.longitude}"
 
-        if @resp.success?
-          if body["status"] != "ZERO_RESULTS"
-            @locationDetails = body["results"]
-            @locationDetails.map.with_index(1) do |e, index|
-              new_location = {}
-              new_location["address"] = e["vicinity"]
-              new_location["latitude"] = e["geometry"]["location"]["lat"]
-              new_location["longitude"] = e["geometry"]["location"]["lng"]
-              new_location["key"] = index
-              new_location["name"] = e["name"]
-              if new_location["rating"] != nil
-                new_location["rating"] = e["rating"]
-              end
+      train_details()
+      school_details()
+      hospital_details()
 
-              @new_rspn = Faraday.get 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial' do |req|
-                destination = "#{new_location["latitude"]},#{new_location["longitude"]}"
-                req.params['origins'] = location
-                req.params['destinations'] = destination
-                req.params['key'] = GOOGLE_KEY
-              end
-              body_new = JSON.parse(@new_rspn.body)
-
-              if @new_rspn.success?
-                if body_new["status"] == "OK"
-                  new_location["distance"] = body_new["rows"][0]["elements"][0]["distance"]["text"]
-                  new_location["travel_time"] = body_new["rows"][0]["elements"][0]["duration"]["text"]
-                end
-              end
-
-              @all_locations.push(new_location)
-            end
-          end
-
-        else
-          @error = body["meta"]["errorDetail"]
-        end
-
-      rescue Faraday::ConnectionFailed
-        @error = "There was a timeout. Please try again."
+      if @train_stations_locations.any?
+        @all_locations.merge!(trains: @train_stations_locations.first(1))
       end
 
-      if @all_locations.any?
-        @result = @all_locations.first(5)
-      else
-        @result = { message: @error}
+      if @hospital_locations.any?
+        @all_locations.merge!(hospitals: @hospital_locations.first(2))
       end
 
-      render json: @result
+      if @school_locations.any?
+        @all_locations.merge!(schools: @school_locations)
+      end
 
-      # render json: @all_locations
+      render json: @all_locations
 
     else
       render json: {
@@ -78,10 +40,137 @@ class Api::V1::LocationController < ApplicationController
     end
   end
 
+
+  def train_details
+
+    begin
+      @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
+        req.params['rankby'] = 'distance'
+        req.params['location'] = @orig_location
+        req.params['type'] = 'train_station'
+        req.params['key'] = GOOGLE_KEY
+      end
+
+      @body = JSON.parse(@resp.body)
+
+      if @resp.success?
+        if @body["status"] != "ZERO_RESULTS"
+
+          build_object(@train_stations_locations)
+
+        end
+
+      else
+        @error = body["meta"]["errorDetail"]
+      end
+
+    rescue Faraday::ConnectionFailed
+      @error = "There was a timeout. Please try again."
+    end
+  end
+
+  def hospital_details
+
+    begin
+      @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
+        req.params['rankby'] = 'distance'
+        req.params['location'] = @orig_location
+        req.params['type'] = 'hospital'
+        req.params['key'] = GOOGLE_KEY
+      end
+
+      @body = JSON.parse(@resp.body)
+
+      if @resp.success?
+        if @body["status"] != "ZERO_RESULTS"
+
+            build_object(@hospital_locations)
+
+        end
+
+      else
+        @error = body["meta"]["errorDetail"]
+      end
+
+    rescue Faraday::ConnectionFailed
+      @error = "There was a timeout. Please try again."
+    end
+  end
+
+  def school_details
+
+    begin
+      @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
+        req.params['rankby'] = 'distance'
+        req.params['location'] = @orig_location
+        req.params['type'] = 'school'
+        req.params['key'] = GOOGLE_KEY
+      end
+
+      @body = JSON.parse(@resp.body)
+
+      if @resp.success?
+        if @body["status"] != "ZERO_RESULTS"
+
+            build_object(@school_locations)
+
+        end
+
+      else
+        @error = body["meta"]["errorDetail"]
+      end
+
+    rescue Faraday::ConnectionFailed
+      @error = "There was a timeout. Please try again."
+    end
+  end
+
   private
 
   def location_params
     params.fetch(:location, {}).permit(:address, :city, :state, :zip)
+  end
+
+  def build_object(array)
+
+    @locationDetails = @body["results"]
+    @locationDetails.map.with_index(1) do |e, index|
+      @new_location = {}
+      @new_location["address"] = e["vicinity"]
+      @new_location["latitude"] = e["geometry"]["location"]["lat"]
+      @new_location["longitude"] = e["geometry"]["location"]["lng"]
+      @new_location["key"] = index
+      @new_location["name"] = e["name"]
+      if @new_location["rating"] != nil
+        @new_location["rating"] = e["rating"]
+      end
+
+      begin
+        @new_rspn = Faraday.get 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial' do |req|
+          destination = "#{@new_location["latitude"]},#{@new_location["longitude"]}"
+          req.params['origins'] = @orig_location
+          req.params['destinations'] = destination
+          req.params['key'] = GOOGLE_KEY
+        end
+        body_new = JSON.parse(@new_rspn.body)
+
+        if @new_rspn.success?
+          if body_new["status"] == "OK"
+            @new_location["distance"] = body_new["rows"][0]["elements"][0]["distance"]["text"]
+            @new_location["travel_time"] = body_new["rows"][0]["elements"][0]["duration"]["text"]
+          end
+        else
+          @error = body["meta"]["errorDetail"]
+        end
+
+      rescue Faraday::ConnectionFailed
+        @error = "There was a timeout. Please try again."
+      end
+
+      array.push(@new_location)
+
+    end
+
   end
 
 end
