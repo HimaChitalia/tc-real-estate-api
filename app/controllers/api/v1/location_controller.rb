@@ -12,9 +12,10 @@ class Api::V1::LocationController < ApplicationController
 
       begin
         @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
-          @radius = params[:miles].to_i * 1609.344
+          req.params['rankby'] = 'distance'
+          # @radius = params[:miles].to_i * 1609.344
           req.params['location'] = location
-          req.params['radius'] = @radius
+          # req.params['radius'] = @radius
           req.params['type'] = params[:type]
           req.params['key'] = GOOGLE_KEY
           # req.options.timeout = 0
@@ -27,20 +28,13 @@ class Api::V1::LocationController < ApplicationController
             @locationDetails = body["results"]
             @locationDetails.map.with_index(1) do |e, index|
               new_location = {}
-              new_location["address"] = e["vicinity"],
-              new_location["key"] = index,
+              new_location["address"] = e["vicinity"]
+              new_location["latitude"] = e["geometry"]["location"]["lat"]
+              new_location["longitude"] = e["geometry"]["location"]["lng"]
+              new_location["key"] = index
+              new_location["name"] = e["name"]
               if new_location["rating"] != nil
                 new_location["rating"] = e["rating"]
-              end
-              new_location["name"] = e["name"]
-              if e["opening_hours"] && e["opening_hours"]["open_now"] == true
-                new_location["open"] = true
-              end
-              new_location.map do |k, v|
-                if v.is_a?(Array)
-                    v.pop(2)
-                    v.to_s
-                end
               end
               @all_locations.push(new_location)
             end
