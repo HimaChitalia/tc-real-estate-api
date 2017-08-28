@@ -13,12 +13,9 @@ class Api::V1::LocationController < ApplicationController
       begin
         @resp = Faraday.get 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?' do |req|
           req.params['rankby'] = 'distance'
-          # @radius = params[:miles].to_i * 1609.344
           req.params['location'] = location
-          # req.params['radius'] = @radius
           req.params['type'] = params[:type]
           req.params['key'] = GOOGLE_KEY
-          # req.options.timeout = 0
         end
 
         body = JSON.parse(@resp.body)
@@ -36,10 +33,24 @@ class Api::V1::LocationController < ApplicationController
               if new_location["rating"] != nil
                 new_location["rating"] = e["rating"]
               end
+
+              @new_rspn = Faraday.get 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial' do |req|
+                destination = "#{new_location["latitude"]},#{new_location["longitude"]}"
+                req.params['origins'] = location
+                req.params['destinations'] = destination
+                req.params['key'] = GOOGLE_KEY
+              end
+              body_new = JSON.parse(@new_rspn.body)
+
+              if @new_rspn.success?
+                if body_new["status"] == "OK"
+                  new_location["distance"] = body_new["rows"][0]["elements"][0]["distance"]["text"]
+                  new_location["travel_time"] = body_new["rows"][0]["elements"][0]["duration"]["text"]
+                end
+              end
+
               @all_locations.push(new_location)
             end
-          else
-            @error = "#{params[:type]} is not available in #{params[:miles]} miles. PLease increase search radius and try again!"
           end
 
         else
@@ -51,7 +62,7 @@ class Api::V1::LocationController < ApplicationController
       end
 
       if @all_locations.any?
-        @result = @all_locations
+        @result = @all_locations.first(5)
       else
         @result = { message: @error}
       end
