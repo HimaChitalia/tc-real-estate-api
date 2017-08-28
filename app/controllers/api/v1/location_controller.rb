@@ -24,15 +24,15 @@ class Api::V1::LocationController < ApplicationController
       restaurant_details()
 
       if @train_stations_locations.any?
-        @all_locations.merge!(trains: @train_stations_locations.first(1))
+        @all_locations.merge!(trains: @train_stations_locations.first(2))
       end
 
       if @hospital_locations.any?
-        @all_locations.merge!(hospitals: @hospital_locations.first(1))
+        @all_locations.merge!(hospitals: @hospital_locations.first(3))
       end
 
       if @pharmacy_locations.any?
-        @all_locations.merge!(pharmacies: @pharmacy_locations.first(5))
+        @all_locations.merge!(pharmacies: @pharmacy_locations.first(10))
       end
 
       if @school_locations.any?
