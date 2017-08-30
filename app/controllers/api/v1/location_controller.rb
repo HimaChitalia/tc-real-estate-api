@@ -3,10 +3,9 @@ class Api::V1::LocationController < ApplicationController
   GOOGLE_KEY = ENV["GOOGLE_KEY"]
 
   def geolocation
+
     @location = Location.new(location_params)
-
     if @location.save
-
       @all_locations = {}
 
       @train_stations_locations = []
@@ -87,7 +86,7 @@ class Api::V1::LocationController < ApplicationController
   private
 
   def location_params
-    params.fetch(:location, {}).permit(:address, :city, :state, :zip)
+    params.fetch(:location, {}).permit(:address, :city, :state)
   end
 
   def get_details(object, arrayObject)

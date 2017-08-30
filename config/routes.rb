@@ -16,8 +16,8 @@ Rails.application.routes.draw do
 
       # /api/v1/houses
       resources :houses, only: [:create, :show]
-      
-      post '/geolocation', to: "location#geolocation"
+
+      post '/search', to: "location#geolocation"
 
     end
   end
