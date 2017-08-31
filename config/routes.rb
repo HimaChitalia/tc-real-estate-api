@@ -19,6 +19,8 @@ Rails.application.routes.draw do
 
       post '/search', to: "location#geolocation"
 
+      resources "contacts", only: [:create]
+
     end
   end
 end

@@ -15,12 +15,22 @@ class Api::V1::LocationController < ApplicationController
       @restaurant_locations = []
 
       @orig_location = "#{@location.latitude},#{@location.longitude}"
+
+      # @location_new_hash = {}
+      # @location_new_hash.merge!(address: @location.address.capitalize)
+      # @location_new_hash.merge!(city: @location.city.capitalize)
+      # @location_new_hash.merge!(state: @location.state.upcase)
+
+
       @all_locations.merge!(location: @location)
+
       train_details()
       school_details()
       hospital_details()
       pharmacy_details()
       restaurant_details()
+
+
 
       if @train_stations_locations.any?
         @all_locations.merge!(trains: @train_stations_locations.first(2))
@@ -122,7 +132,8 @@ class Api::V1::LocationController < ApplicationController
                 req.params['origins'] = @orig_location
                 req.params['destinations'] = destination
                 req.params['key'] = GOOGLE_KEY
-              end
+              end              
+
               body_new = JSON.parse(@new_rspn.body)
 
               if @new_rspn.success?
@@ -137,6 +148,8 @@ class Api::V1::LocationController < ApplicationController
             rescue Faraday::ConnectionFailed
               @error = "There was a timeout. Please try again."
             end
+
+
 
             arrayObject.push(@new_location)
 

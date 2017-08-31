@@ -20,6 +20,9 @@ gem 'jwt', '~> 1.5', '>= 1.5.4'
 # Use ActiveModel has_secure_password
 gem 'bcrypt', '~> 3.1.7'
 
+#mail_form gem
+gem 'mail_form'
+
 #gem faraday for the Zillow api calls
 gem 'faraday'
 

@@ -18,3 +18,5 @@
 # Ignore all environmental Variables
 .env
 
+#Ignore Procfile so that heroku doesn't receive a R11 – Bad Bind Error
+Procfile
