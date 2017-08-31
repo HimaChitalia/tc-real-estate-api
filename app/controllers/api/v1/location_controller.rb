@@ -15,7 +15,7 @@ class Api::V1::LocationController < ApplicationController
       @restaurant_locations = []
 
       @orig_location = "#{@location.latitude},#{@location.longitude}"
-
+      @all_locations.merge!(location: @location)
       train_details()
       school_details()
       hospital_details()
