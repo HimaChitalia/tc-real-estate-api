@@ -1,10 +1,15 @@
 class Api::V1::NewsController < ApplicationController
 
-NEWS_API_KEY = ENV["NEWS_API_KEY"]
-NEWYORK_TIMES_API = ENV["NEWYORK_TIMES_API"]
+  require 'nokogiri'
+  require 'open-uri'
+
 THE_GUARDIAN_KEY = ENV["THE_GUARDIAN_KEY"]
 
- # http://content.guardianapis.com/search?q=real%20estate&api-key=test
+CONTENT_URL = 'https://www.google.com/search?safe=off&biw=1536&bih=481&tbm=nws&'
+
+
+# puts doc.to_html
+
   def realestatenews
 
     @articles = []
@@ -16,24 +21,26 @@ THE_GUARDIAN_KEY = ENV["THE_GUARDIAN_KEY"]
 
      body = JSON.parse(@resp.body)
 
-    #  render json: body
-    # binding.pry
      if @resp.success?
-      #  binding.pry
 
-  #      response"=>
-  # {"status"=>"ok",
        if body["response"]["status"] == "ok"
-        #  binding.pry
          real_estate_news = body["response"]["results"]
-        #  binding.pry
 
          real_estate_news.map do |news|
            @article = {}
            @article.merge!(key: news["id"])
            @article.merge!(title: news["webTitle"])
            @article.merge!(url: news["webUrl"])
-          #  binding.pry
+
+          #  uri = "#{CONTENT_URL}q=#{news["id"]}"
+          #  doc = Nokogiri::HTML(open(uri))
+           #
+          #  lines = doc.css("div.st").text.force_encoding('UTF-8')
+           #
+          #   paragraph = JSON.parse([ lines ].to_json).first
+           #
+          #  @article.merge!(abstract: paragraph)
+
            @articles << @article
         end
        end
@@ -47,38 +54,6 @@ THE_GUARDIAN_KEY = ENV["THE_GUARDIAN_KEY"]
 
      render json: @articles
 
-    # begin
-    #  @resp = Faraday.get 'https://api.nytimes.com/svc/topstories/v2/realestate.json' do |req|
-    #    req.params['api-key'] = NEWYORK_TIMES_API
-    #  end
-    # #  http://api.nytimes.com/svc/topstories/v2/{section}.{response-format}?api-key=
-    #
-    #  @body = JSON.parse(@resp.body)
-    #
-    # #  render json: @body
-    #  if @resp.success?
-    #    if @body["status"] == "OK"
-    #      real_estate_news = @body["results"]
-    #
-    #
-    #      real_estate_news.map.with_index(1) do |news, index|
-    #        @article = {}
-    #        @article.merge!(key: index)
-    #        @article.merge!(title: news["title"])
-    #        @article.merge!(abstract: news["abstract"])
-    #        @article.merge!(url: news["url"])
-    #        @articles << @article
-    #     end
-    #    end
-    #  end
-    #
-    #
-    #  rescue Faraday::TimeoutError
-    #    @error = "There was a timeout. Please try again."
-    #  end
-    #
-    #
-    #  render json: @articles
 
   end
 
