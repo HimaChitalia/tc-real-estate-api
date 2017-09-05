@@ -18,6 +18,8 @@ Rails.application.routes.draw do
       resources :houses, only: [:create, :show]
 
       post '/search', to: "location#geolocation"
+      
+      get '/news', to: "news#realestatenews"
 
       resources "contacts", only: [:create]
 
