@@ -33,13 +33,30 @@ CONTENT_URL = 'https://www.google.com/search?safe=off&biw=1536&bih=481&tbm=nws&'
            @article.merge!(url: news["webUrl"])
 
           #  uri = "#{CONTENT_URL}q=#{news["id"]}"
-          #  doc = Nokogiri::HTML(open(uri))
+          #
+          #
+          #  begin
+          #    doc = Nokogiri::HTML(open(uri))
+          # rescue OpenURI::HTTPError => error
+          #   response = error.io
+          #   response.status
+          #   # => ["503", "Service Unavailable"]
+          #   response.string
+          #   # => <!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n<html DIR=\"LTR\">\n<head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><meta name=\"viewport\" content=\"initial-scale=1\">...
+          # end
+
+
+          #  lines = doc.css("div.st")
            #
-          #  lines = doc.css("div.st").text.force_encoding('UTF-8')
+          #  binding.pry
            #
-          #   paragraph = JSON.parse([ lines ].to_json).first
+          #  @data = Hash.from_xml(lines).to_json
            #
-          #  @article.merge!(abstract: paragraph)
+          #   # paragraph = JSON.parse([ lines ].to_json).first
+           #
+          #   binding.pry
+           #
+          #  @article.merge!(abstract: @data)
 
            @articles << @article
         end
