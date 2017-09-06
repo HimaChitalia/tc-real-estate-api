@@ -1,24 +1,7 @@
-# README
+This is a Rails backend for a React client.
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+It is deployed on Heroku - http://trushal-chitalia-api.herokuapp.com
 
-Things you may want to cover:
+The client repo can be found at - https://github.com/HimaChitalia/tc-real-estate-client
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Deployed client App on Heroku - http://trushal-chitalia-api.herokuapp.com
