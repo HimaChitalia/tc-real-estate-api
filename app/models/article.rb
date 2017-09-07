@@ -22,8 +22,10 @@ class Article < ApplicationRecord
           article["key"] = news["id"]
           article["title"] = news["webTitle"]
           article["url"] = news["webUrl"]
-          
-          article.save
+                    
+          if self.where(:key => news["id"]).blank?
+            article.save
+          end
         end
       end
     end
