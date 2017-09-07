@@ -1,4 +1,5 @@
 class Article < ApplicationRecord
+  
   THE_GUARDIAN_KEY = ENV["THE_GUARDIAN_KEY"]
 
  def self.getArticles
@@ -23,13 +24,7 @@ class Article < ApplicationRecord
           article["url"] = news["webUrl"]
           
           article.save
-          # @article = {}
-          # @article.merge!(key: news["id"])
-          # @article.merge!(title: news["webTitle"])
-          # @article.merge!(url: news["webUrl"])
-
-          # @articles << @article
-       end
+        end
       end
     end
 
