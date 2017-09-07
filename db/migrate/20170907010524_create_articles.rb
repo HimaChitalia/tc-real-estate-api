@@ -4,7 +4,7 @@ class CreateArticles < ActiveRecord::Migration[5.1]
       t.string :key
       t.string :title
       t.string :url
-      t.integer :likes
+      t.integer :likes, default: 0
 
       t.timestamps
     end

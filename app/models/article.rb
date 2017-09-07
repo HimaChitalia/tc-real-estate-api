@@ -21,7 +21,6 @@ class Article < ApplicationRecord
           article["key"] = news["id"]
           article["title"] = news["webTitle"]
           article["url"] = news["webUrl"]
-          article["likes"] = 0
           
           article.save
           # @article = {}
